@@ -1,0 +1,6 @@
+{
+  "name": "FINANCIAL LOOK",
+  "description": "Calculate monthly cash flow, manage regular and variable expenses in Euro, and save financial progress with Google Sign-In.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

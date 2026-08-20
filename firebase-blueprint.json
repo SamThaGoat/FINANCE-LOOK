@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "MonthRecord": {
+      "title": "MonthRecord",
+      "description": "User's financial data for a specific month",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Month identifier in YYYY-MM format",
+          "pattern": "^[0-9]{4}-[0-9]{2}$",
+          "maxLength": 7
+        },
+        "monthName": {
+          "type": "string",
+          "description": "Formatted name of the month",
+          "maxLength": 50
+        },
+        "incomes": {
+          "type": "array",
+          "description": "List of monthly income streams"
+        },
+        "expenses": {
+          "type": "array",
+          "description": "List of regular and irregular expenses"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID",
+          "maxLength": 128
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of last update"
+        }
+      },
+      "required": ["id", "monthName", "incomes", "expenses", "userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/months/{monthId}": {
+      "schema": "MonthRecord",
+      "description": "Collection of monthly budget records belonging to an authenticated user"
+    }
+  }
+}

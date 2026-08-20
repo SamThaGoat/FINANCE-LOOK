@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidMonthRecord(data, monthId, userId) {
+      return data.id is string
+        && data.id == monthId
+        && data.id.size() <= 7
+        && data.id.matches('^[0-9]{4}-[0-9]{2}$')
+        && data.monthName is string
+        && data.monthName.size() <= 50
+        && data.userId is string
+        && data.userId == userId
+        && data.userId == request.auth.uid
+        && data.incomes is list
+        && data.incomes.size() <= 500
+        && data.expenses is list
+        && data.expenses.size() <= 1000;
+    }
+
+    // User-isolated Monthly Financial Records
+    match /users/{userId}/months/{monthId} {
+      allow get, list: if isSignedIn() 
+        && request.auth.uid == userId;
+
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(monthId)
+        && isValidMonthRecord(incoming(), monthId, userId);
+
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(monthId)
+        && isValidMonthRecord(incoming(), monthId, userId)
+        && incoming().userId == existing().userId
+        && incoming().id == existing().id;
+
+      allow delete: if isSignedIn()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(monthId);
+    }
+  }
+}
